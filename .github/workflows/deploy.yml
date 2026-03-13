@@ -21,13 +21,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4.4.0
-        with:
-          version: latest
-          cache: true
+          package-manager: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
