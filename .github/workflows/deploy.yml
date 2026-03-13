@@ -3,8 +3,14 @@ name: Deploy static content to Pages
 on:
   push:
     branches:
-      - main  
-      
+      - main
+
+# Sets the GITHUB_TOKEN permissions to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 # Allow one concurrent deployment
 concurrency:
   group: 'pages'
