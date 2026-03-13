@@ -1,0 +1,57 @@
+:root {
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+
+  --color-primary: #4a90d9;
+  --color-text: #333;
+  --color-text-secondary: #666;
+  --color-text-muted: #999;
+  --color-bg: #f8f9fa;
+  --color-border: #e0e0e0;
+  --color-green: #4caf50;
+  --color-green-hover: #3d8b40;
+  --color-error: #f44336;
+
+  --padding-container: 2rem;
+  --padding-group: 1.25rem;
+  --padding-input: 0.75rem;
+  --padding-btn-xs: 0.25rem 0.5rem;
+  --padding-btn-sm: 0.1rem 0.5rem;
+  --padding-btn-md: 0.25rem 0.75rem;
+
+  --margin-group-bottom: 1.5rem;
+  --margin-header-bottom: 1rem;
+  --margin-error-top: 0.25rem;
+  --margin-wrapper-top: 0.5rem;
+  --margin-results-top: 1.5rem;
+  --margin-relative-top: 0.5rem;
+  --margin-adjust-top: 0.75rem;
+  --margin-h1-bottom: 2rem;
+  --margin-local-offset: 0.25rem;
+  --margin-h3-bottom: 0.5rem;
+
+  --gap-xs: 0.15rem;
+  --gap-sm: 0.25rem;
+  --gap-md: 0.5rem;
+  --gap-lg: 0.75rem;
+
+  --border-radius-sm: 4px;
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
+
+  --border-thin: 1px;
+  --border-medium: 2px;
+  --border-thick: 4px;
+
+  --transition-fast: 0.2s;
+
+  --max-width-container: 700px;
+  --time-input-date-width: 95px;
+  --time-input-date-width-mobile: 75px;
+  --time-input-time-width: 85px;
+  --time-input-time-width-mobile: 70px;
+}
