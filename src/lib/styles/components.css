@@ -74,7 +74,9 @@ header {
   border-radius: var(--border-radius-sm);
 }
 
-.delete-btn {
+.delete-btn,
+.copy-btn,
+.adjust-btn {
   padding: var(--padding-btn-xs);
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
@@ -86,9 +88,29 @@ header {
   white-space: nowrap;
 }
 
-.delete-btn:hover {
+.delete-btn:hover,
+.copy-btn:hover,
+.adjust-btn:hover {
   background: var(--color-bg);
   color: var(--color-text);
+}
+
+.copy-btn {
+  margin-left: auto;
+}
+
+.copy-btn:active,
+.adjust-btn:active {
+  background: var(--color-bg);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: scale(0.95);
+}
+
+.copy-btn.copied {
+  background: rgba(76, 175, 80, 0.8);
+  color: white;
+  border-color: rgba(76, 175, 80, 0.8);
 }
 
 .input-group {
@@ -116,11 +138,17 @@ label {
   border-color: var(--color-primary);
 }
 
-.format-badge {
+.input-actions {
   position: absolute;
   top: 50%;
   right: var(--padding-input);
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.format-badge {
   font-size: var(--text-xs);
   padding: var(--padding-btn-xs);
   background: #e8f0fe;
@@ -128,6 +156,32 @@ label {
   border-radius: var(--border-radius-sm);
   font-weight: 500;
   pointer-events: none;
+}
+
+.clear-btn {
+  padding: var(--padding-btn-xs);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+}
+
+.clear-btn:hover {
+  background: var(--color-bg);
+  color: var(--color-error);
+}
+
+.clear-btn:active {
+  transform: scale(0.9);
 }
 
 .now-btn {
@@ -161,17 +215,35 @@ label {
   margin-top: var(--margin-error-top);
 }
 
-.modified-wrapper {
+.modified-wrapper,
+.time-wrapper,
+.adjust-group,
+.quick-adjust {
   display: flex;
   align-items: center;
   gap: var(--gap-md);
+}
+
+.modified-wrapper {
   margin-top: var(--margin-wrapper-top);
 }
 
-.modified-text {
+.modified-text,
+.local-offset,
+.relative-time {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   font-weight: 500;
+}
+
+.modified-text {
+  color: var(--color-text-muted);
+}
+
+.local-offset {
+  margin-left: var(--margin-local-offset);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .results {
@@ -187,6 +259,14 @@ label {
   border-left: var(--border-thick) solid var(--color-primary);
 }
 
+.result-card--local {
+  border-left-color: var(--color-primary);
+}
+
+.result-card--gmt {
+  border-left-color: var(--color-gmt);
+}
+
 .result-card h3 {
   margin: 0 0 var(--margin-h3-bottom) 0;
   color: var(--color-primary);
@@ -195,25 +275,19 @@ label {
   letter-spacing: 0.5px;
 }
 
-.local-offset {
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  margin-left: var(--margin-local-offset);
-  text-transform: none;
-  letter-spacing: normal;
+.result-card .gmt-heading {
+  color: var(--color-gmt);
 }
 
 .time-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--gap-sm);
+  flex-wrap: nowrap;
   width: 100%;
+  gap: var(--gap-sm);
 }
 
 .time-input {
   font-size: var(--text-md);
-  font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+  font-family: Consolas, Monaco, "Courier New", monospace;
   border: none;
   background: transparent;
   padding: 0;
@@ -221,67 +295,42 @@ label {
   flex-shrink: 0;
 }
 
-.time-input--date {
-  width: var(--time-input-date-width);
-  max-width: 100%;
+.time-input--date,
+.time-input--time,
+.time-input--ms {
+  width: auto;
 }
 
 .time-input--time {
-  width: var(--time-input-time-width);
-  max-width: 100%;
   color: var(--color-green);
+}
+
+.time-input--ms {
+  color: var(--color-text-muted);
 }
 
 .separator {
   color: var(--color-text-muted);
   flex-shrink: 0;
-}
-
-.copy-btn {
-  padding: var(--padding-btn-xs);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.copy-btn:hover {
-  background: var(--color-bg);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.copy-btn:active {
-  background: var(--color-bg);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  transform: scale(0.95);
-}
-
-.copy-btn.copied {
-  background: rgba(76, 175, 80, 0.8);
-  color: white;
-  border-color: rgba(76, 175, 80, 0.8);
+  margin-right: var(--gap-md);
 }
 
 .relative-time {
   margin-top: var(--margin-relative-top);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
 }
 
 .quick-adjust {
-  display: flex;
   gap: var(--gap-lg);
   margin-top: var(--margin-adjust-top);
   flex-wrap: wrap;
 }
 
 .adjust-group {
-  display: flex;
   gap: var(--gap-sm);
 }
 
-.subtle-button {
+.subtle-button,
+.transparent-button {
   padding: var(--padding-btn-md);
   font-size: var(--text-sm);
   font-weight: 500;
@@ -293,42 +342,13 @@ label {
   transition: all var(--transition-fast);
 }
 
-.subtle-button:hover {
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
 .transparent-button {
-  padding: var(--padding-btn-md);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  background: transparent;
-  border: var(--border-thin) dashed var(--color-border);
+  border-style: dashed;
   border-radius: var(--border-radius-sm);
-  
-  cursor: pointer;
-  transition: all var(--transition-fast);
 }
 
+.subtle-button:hover,
 .transparent-button:hover {
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.adjust-btn {
-  padding: var(--padding-btn-xs);
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  background: transparent;
-  border: var(--border-thin) solid var(--color-border);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.adjust-btn:hover {
   background: var(--color-bg);
   color: var(--color-text);
 }
@@ -341,15 +361,8 @@ label {
 }
 
 @media (max-width: 480px) {
-  .time-input--date {
-    width: var(--time-input-date-width-mobile);
-  }
-
-  .time-input--time {
-    width: var(--time-input-time-width-mobile);
-  }
-
   .time-wrapper {
+    flex-wrap: wrap;
     gap: var(--gap-xs);
   }
 
