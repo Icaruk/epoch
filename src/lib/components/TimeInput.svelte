@@ -19,12 +19,15 @@
   /** @type {boolean} */
   const isLocal = $derived(type === "local");
 
+  /** @type {string} */
+  const offset = $derived(iso.slice(23));
+
   /**
    * @param {Event} e
    */
   function handleDateBlur(e) {
     const target = /** @type {HTMLInputElement} */ (e.target);
-    onTimeEdit(target.value + "T" + iso.slice(11));
+    onTimeEdit(target.value + "T" + iso.slice(11, 23) + offset);
   }
 
   /**
@@ -32,7 +35,7 @@
    */
   function handleTimeBlur(e) {
     const target = /** @type {HTMLInputElement} */ (e.target);
-    onTimeEdit(iso.slice(0, 10) + "T" + target.value + iso.slice(19));
+    onTimeEdit(iso.slice(0, 10) + "T" + target.value + iso.slice(19, 23) + offset);
   }
 
   /**
@@ -40,7 +43,7 @@
    */
   function handleMsBlur(e) {
     const target = /** @type {HTMLInputElement} */ (e.target);
-    onTimeEdit(iso.slice(0, 19) + target.value);
+    onTimeEdit(iso.slice(0, 19) + target.value + offset);
   }
 
   function handleCopy() {
@@ -69,7 +72,7 @@
     class="time-input time-input--ms"
     type="text"
     size="4"
-    value={iso.slice(19)}
+    value={iso.slice(19, 23)}
     onblur={handleMsBlur}
   />
   <button

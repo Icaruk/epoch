@@ -8,7 +8,7 @@ dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 
 export const STORAGE_KEY = "epoch-groups";
-export const ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSS";
+export const ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSSZ";
 
 /**
  * @typedef {'sec' | 'ms'} Format
