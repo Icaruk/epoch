@@ -1,5 +1,29 @@
 <script>
   import dayjs from "dayjs";
+
+  /**
+   * @typedef {'sec' | 'ms'} Format
+   */
+
+  /**
+   * @typedef {Object} Group
+   * @property {number} id
+   * @property {string} name
+   * @property {string} displayInput
+   * @property {string} epochInput
+   * @property {string | null} originalEpochInput
+   * @property {string} localIso
+   * @property {string} localOffset
+   * @property {string} gmtIso
+   * @property {Format} format
+   * @property {string | null} error
+   */
+
+  /**
+   * @typedef {Object} Duration
+   * @property {number} value
+   * @property {'h' | 'd'} unit
+   */
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
   import relativeTime from "dayjs/plugin/relativeTime";
@@ -13,9 +37,33 @@
   const STORAGE_KEY = "epoch-groups";
   const ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 
-  let groups = $state([createGroup("Group 1")]);
+  /** @type {Group[]} */
+  let groups = $state([]);
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let saveTimeout;
 
+  /**
+   * @returns {Group}
+   */
+  function createDefaultGroup() {
+    return groupSetNow({
+      id: Date.now() + Math.random(),
+      name: "Group 1",
+      displayInput: "",
+      epochInput: "",
+      originalEpochInput: null,
+      localIso: "",
+      localOffset: "",
+      gmtIso: "",
+      format: "sec",
+      error: null,
+    });
+  }
+
+  /**
+   * @param {string} name
+   * @returns {Group}
+   */
   function createGroup(name) {
     return {
       id: Date.now() + Math.random(),
@@ -68,6 +116,10 @@
     scheduleSave();
   }
 
+  /**
+   * @param {string} value
+   * @returns {Format}
+   */
   function detectFormat(value) {
     if (!value) return "sec";
     const num = parseInt(value, 10);
@@ -81,10 +133,19 @@
     return "sec";
   }
 
+  /**
+   * @param {number} num
+   * @param {Format} format
+   * @returns {import("dayjs").Dayjs}
+   */
   function getDateFromEpoch(num, format) {
     return format === "ms" ? dayjs(num) : dayjs.unix(num);
   }
 
+  /**
+   * @param {Group} group
+   * @param {import("dayjs").Dayjs} isoDate
+   */
   function updateGroupFromIso(group, isoDate) {
     const timestamp = isoDate.valueOf();
     group.epochInput = timestamp.toString();
@@ -104,6 +165,9 @@
     group.gmtIso = isoDate.utc().format(ISO_FORMAT);
   }
 
+  /**
+   * @param {Group} group
+   */
   function handleInput(group) {
     group.error = null;
 
@@ -153,6 +217,9 @@
     scheduleSave();
   }
 
+  /**
+   * @param {Group} group
+   */
   function handleBlur(group) {
     if (!group.displayInput) return;
 
@@ -166,6 +233,10 @@
     scheduleSave();
   }
 
+  /**
+   * @param {Group} group
+   * @param {string} value
+   */
   function handleTimeEdit(group, value) {
     const date = dayjs(value);
     if (!date.isValid()) return;
@@ -186,6 +257,11 @@
     scheduleSave();
   }
 
+  /**
+   * @param {string} timestamp
+   * @param {Format} format
+   * @returns {string}
+   */
   function getRelativeTime(timestamp, format) {
     if (!timestamp) return "";
     const num = parseInt(timestamp, 10);
@@ -194,6 +270,10 @@
     return date.from(now);
   }
 
+  /**
+   * @param {Group} group
+   * @param {Duration} duration
+   */
   function adjustTime(group, duration) {
     const num = parseInt(group.epochInput, 10);
     const date = getDateFromEpoch(num, group.format);
@@ -214,6 +294,7 @@
     scheduleSave();
   }
 
+  /** @type {string | null} */
   let copiedId = $state(null);
 
   $effect(() => {
@@ -225,30 +306,63 @@
     return () => clearTimeout(timeout);
   });
 
+  /**
+   * @param {string} text
+   * @param {string} id
+   */
   function copyToClipboard(text, id) {
     navigator.clipboard.writeText(text);
     copiedId = id;
   }
 
+  /**
+   * @param {Group} group
+   */
   function restoreOriginal(group) {
-    group.epochInput = group.originalEpochInput;
-    group.displayInput = group.originalEpochInput;
+    group.epochInput = group.originalEpochInput ?? "";
+    group.displayInput = group.originalEpochInput ?? "";
     handleInput(group);
     scheduleSave();
   }
 
+  /**
+   * @param {Group} group
+   */
+  function setAsOriginal(group) {
+    group.originalEpochInput = group.epochInput;
+    group.originalEpochInput = group.displayInput;
+    handleInput(group);
+    scheduleSave();
+  }
+
+  /**
+   * @param {Group} group
+   */
   function deleteGroup(group) {
     groups = groups.filter(g => g.id !== group.id);
     scheduleSave();
   }
 
-  function setNow(group) {
+  /**
+   * @param {Group} group
+   * @returns {Group}
+   */
+  function groupSetNow(group) {
     const now = dayjs();
     const timestamp = now.valueOf();
     group.epochInput = timestamp.toString();
     group.displayInput = timestamp.toString();
     group.format = "ms";
     group.originalEpochInput = null;
+
+    return group;
+  }
+
+  /**
+   * @param {Group} group
+   */
+  function setNow(group) {
+    groupSetNow(group);
     handleInput(group);
     scheduleSave();
   }
@@ -278,7 +392,10 @@
       </div>
 
       <div class="input-group">
-        <label for="epoch-input" class="sr-only">Enter epoch timestamp or ISO date</label>
+        <label
+          for="epoch-input"
+          class="sr-only">Enter epoch timestamp or ISO date</label
+        >
         <input
           id="epoch-input"
           type="text"
@@ -314,6 +431,12 @@
           >
             Restore original
           </button>
+          <button
+            class="transparent-button"
+            onclick={() => setAsOriginal(group)}
+          >
+            Set as original
+          </button>
         </div>
       {/if}
 
@@ -326,14 +449,20 @@
                 class="time-input time-input--date"
                 type="text"
                 value={group.localIso.slice(0, 10)}
-                oninput={e => handleTimeEdit(group, e.target.value + "T" + group.localIso.slice(11), "local")}
+                oninput={e => {
+                  const target = /** @type {HTMLInputElement} */ (e.target);
+                  handleTimeEdit(group, target.value + "T" + group.localIso.slice(11));
+                }}
               />
               <span class="separator">T</span>
               <input
                 class="time-input time-input--time"
                 type="text"
                 value={group.localIso.slice(11)}
-                oninput={e => handleTimeEdit(group, group.localIso.slice(0, 10) + "T" + e.target.value, "local")}
+                oninput={e => {
+                  const target = /** @type {HTMLInputElement} */ (e.target);
+                  handleTimeEdit(group, group.localIso.slice(0, 10) + "T" + target.value);
+                }}
               />
               <button
                 class="subtle-button copy-btn {copiedId === `${group.id}-local` ? 'copied' : ''}"
@@ -350,14 +479,20 @@
                 class="time-input time-input--date"
                 type="text"
                 value={group.gmtIso.slice(0, 10)}
-                oninput={e => handleTimeEdit(group, e.target.value + "T" + group.gmtIso.slice(11), "gmt")}
+                oninput={e => {
+                  const target = /** @type {HTMLInputElement} */ (e.target);
+                  handleTimeEdit(group, target.value + "T" + group.gmtIso.slice(11));
+                }}
               />
               <span class="separator">T</span>
               <input
                 class="time-input time-input--time"
                 type="text"
                 value={group.gmtIso.slice(11)}
-                oninput={e => handleTimeEdit(group, group.gmtIso.slice(0, 10) + "T" + e.target.value, "gmt")}
+                oninput={e => {
+                  const target = /** @type {HTMLInputElement} */ (e.target);
+                  handleTimeEdit(group, group.gmtIso.slice(0, 10) + "T" + target.value);
+                }}
               />
               <button
                 class="subtle-button copy-btn {copiedId === `${group.id}-gmt` ? 'copied' : ''}"

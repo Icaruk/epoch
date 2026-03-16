@@ -298,6 +298,24 @@ label {
   color: var(--color-text);
 }
 
+.transparent-button {
+  padding: var(--padding-btn-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: var(--border-thin) dashed var(--color-border);
+  border-radius: var(--border-radius-sm);
+  
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.transparent-button:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
 .adjust-btn {
   padding: var(--padding-btn-xs);
   font-size: var(--text-xs);
