@@ -12,6 +12,13 @@
    */
 
   /**
+   * @typedef {Object} ParsedInput
+   * @property {string} epochInput
+   * @property {Format} format
+   * @property {import("dayjs").Dayjs} [isoDate]
+   */
+
+  /**
    * @typedef {Object} TimestampGroupProps
    * @property {Group} group - The timestamp group object (bindable)
    * @property {(id: number) => void} onDelete - Callback to delete group
@@ -24,56 +31,51 @@
   /** @type {TimestampGroupProps} */
   let { group = $bindable(), onDelete, onClear, onSetNow, onCopy, copiedId } = $props();
 
-  $effect(() => {
-    if (!group.displayInput) {
-      group.localIso = "";
-      group.localOffset = "";
-      group.gmtIso = "";
-      group.epochInput = "";
-      group.error = null;
-      onCopy(null);
-      return;
-    }
+  /** @type {ParsedInput | null} */
+  const parsedInput = $derived.by(() => {
+    if (!group.displayInput) return null;
 
     const num = parseInt(group.displayInput, 10);
-    const isNumber = !isNaN(num);
 
-    if (isNumber) {
-      group.epochInput = group.displayInput;
+    if (!isNaN(num)) {
+      return {
+        epochInput: group.displayInput,
+        format: detectFormat(group.displayInput)
+      };
+    }
 
-      if (!group.originalEpochInput) {
-        group.originalEpochInput = group.epochInput;
-      }
+    const isoDate = dayjs(group.displayInput);
+    if (isoDate.isValid()) {
+      return {
+        epochInput: isoDate.valueOf().toString(),
+        format: /** @type {const} */ ("ms"),
+        isoDate
+      };
+    }
 
-      group.format = detectFormat(group.displayInput);
-      group.error = null;
+    return null;
+  });
 
-      group.localIso = getIsoFromEpoch(group.epochInput, group.format);
-      group.gmtIso = getGmtIsoFromEpoch(group.epochInput, group.format);
-      group.localOffset = getOffsetFromEpoch(group.epochInput, group.format);
-    } else {
-      const isoDate = dayjs(group.displayInput);
-      if (isoDate.isValid()) {
-        const timestamp = isoDate.valueOf();
-        group.epochInput = timestamp.toString();
-        group.format = "ms";
+  const epochInput = $derived(parsedInput?.epochInput ?? "");
+  const format = $derived(parsedInput?.format ?? "sec");
+  const error = $derived(group.displayInput && !parsedInput ? "Invalid timestamp" : null);
+  const localIso = $derived.by(() => {
+    if (!parsedInput) return "";
+    if (parsedInput.isoDate) return parsedInput.isoDate.format(ISO_FORMAT);
+    return getIsoFromEpoch(parsedInput.epochInput, parsedInput.format);
+  });
+  const gmtIso = $derived.by(() => {
+    if (!parsedInput) return "";
+    if (parsedInput.isoDate) return parsedInput.isoDate.utc().format(ISO_FORMAT);
+    return getGmtIsoFromEpoch(parsedInput.epochInput, parsedInput.format);
+  });
+  const localOffset = $derived(parsedInput ? getOffsetFromEpoch(parsedInput.epochInput, parsedInput.format) : "");
 
-        if (!group.originalEpochInput) {
-          group.originalEpochInput = group.epochInput;
-        }
-
-        group.localIso = isoDate.format(ISO_FORMAT);
-        group.gmtIso = isoDate.utc().format(ISO_FORMAT);
-        group.localOffset = getOffsetFromEpoch(group.epochInput, group.format);
-        group.error = null;
-      } else {
-        group.localIso = "";
-        group.localOffset = "";
-        group.gmtIso = "";
-        group.originalEpochInput = null;
-        group.epochInput = "";
-        group.error = "Invalid timestamp";
-      }
+  $effect(() => {
+    if (!group.displayInput) {
+      onCopy(null);
+    } else if (!group.originalEpochInput && parsedInput) {
+      group.originalEpochInput = parsedInput.epochInput;
     }
   });
 
@@ -124,7 +126,7 @@
    * @param {import("../epoch-utils.js").Duration} duration
    */
   function adjustTime(duration) {
-    const newTimestamp = adjustTimestamp(group.epochInput, group.format, duration);
+    const newTimestamp = adjustTimestamp(epochInput, format, duration);
     group.displayInput = newTimestamp.toString();
   }
 </script>
@@ -165,7 +167,7 @@
     {/if}
     {#if group.displayInput}
       <div class="input-actions">
-        <span class="format-badge">{group.format === "ms" ? "milliseconds" : "seconds"}</span>
+        <span class="format-badge">{format === "ms" ? "milliseconds" : "seconds"}</span>
         <button
           class="clear-btn"
           onclick={clearInput}
@@ -175,8 +177,8 @@
     {/if}
   </div>
 
-  {#if group.error}
-    <div class="error-message">{group.error}</div>
+  {#if error}
+    <div class="error-message">{error}</div>
   {/if}
 
   {#if group.originalEpochInput && group.displayInput !== group.originalEpochInput}
@@ -197,12 +199,12 @@
     </div>
   {/if}
 
-  {#if group.localIso !== ""}
+  {#if localIso !== ""}
     <div class="results">
       <ResultCard
         type="local"
-        iso={group.localIso}
-        offset={group.localOffset}
+        iso={localIso}
+        offset={localOffset}
         onTimeEdit={handleTimeEdit}
         {onCopy}
         {copiedId}
@@ -210,7 +212,7 @@
       />
       <ResultCard
         type="gmt"
-        iso={group.gmtIso}
+        iso={gmtIso}
         offset={null}
         onTimeEdit={handleTimeEdit}
         {onCopy}
@@ -218,7 +220,7 @@
         groupId={group.id}
       />
     </div>
-    <div class="relative-time">{getRelativeTime(group.epochInput, group.format)}</div>
+    <div class="relative-time">{getRelativeTime(epochInput, format)}</div>
     <div class="quick-adjust">
       <div class="adjust-group">
         <button

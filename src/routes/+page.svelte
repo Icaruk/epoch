@@ -1,14 +1,6 @@
 <script>
   import TimestampGroup from "$lib/components/TimestampGroup.svelte";
   import { STORAGE_KEY } from "$lib/epoch-utils.js";
-  import dayjs from "dayjs";
-  import {
-    detectFormat,
-    getIsoFromEpoch,
-    getGmtIsoFromEpoch,
-    getOffsetFromEpoch,
-    ISO_FORMAT
-  } from "$lib/epoch-utils.js";
   import "$lib/styles/variables.css";
   import "$lib/styles/utilities.css";
   import "$lib/styles/components.css";
@@ -20,7 +12,7 @@
   /** @type {Group[]} */
   let groups = $state([]);
 
-  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  /** @type {number | undefined} */
   let saveTimeout;
 
   /** @type {string | null} */
