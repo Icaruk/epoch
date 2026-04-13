@@ -68,6 +68,10 @@
 
   loadFromStorage();
 
+  if (groups.length === 0) {
+    groups = [createGroup("Default")];
+  }
+
   function addGroup() {
     const num = groups.length + 1;
     groups = [...groups, createGroup(`Group ${num}`)];
